@@ -25,7 +25,7 @@ Course numbers use FIU public catalog references. Faculty associations use publi
 
 Requires Node.js 22.13+ and pnpm. Run `pnpm install`, then `pnpm dev`. Run `pnpm build` to create the Cloudflare Worker and client assets. Deployment through Sites uses the provided site workflow. The `.openai/hosting.json` file retains the existing site identity and logical DB/BUCKET bindings.
 
-For standalone Cloudflare deployment, configure a D1 database and R2 bucket, preserve the DB and BUCKET binding names, apply the SQL migration in `drizzle/`, and deploy the generated Worker output. GitHub Pages alone cannot run the server API or persistent storage.
+For standalone Cloudflare deployment, configure a D1 database and R2 bucket, preserve the DB and BUCKET binding names, apply the SQL migration in `drizzle/`, and deploy the generated Worker output. GitHub Pages uses the dedicated browser-storage build described below.
 
 ## Source layout
 
@@ -39,3 +39,9 @@ For standalone Cloudflare deployment, configure a D1 database and R2 bucket, pre
 ## Validation
 
 TypeScript and production build checks pass. Course data validation covers unique assignment IDs, term dates, past/future grade status, score ranges, and weighted totals. Runtime checks verified the dashboard response, saved submissions/messages/discussions/events, file upload/download, submission updates, event deletion, and invalid request handling.
+
+## GitHub Pages
+
+Run `pnpm build:pages` to build `dist-pages/`. The Pages entry reuses the same student interface and course data, with an IndexedDB storage adapter. Submissions, file attachments (up to 10 MB), inbox messages, discussion replies, profile settings, completed tasks, and calendar edits persist in the visitor’s browser across reloads. Downloads, quizzes, grade calculations, and syllabus/grade/calendar exports work without a server. Browser data does not synchronize across devices, and clearing site data removes it. Inbox communication remains simulated showcase content.
+
+The deployment workflow builds and publishes on pushes to `main`; select GitHub Actions under Settings → Pages. The default base path is `/panther-classroom/`; set `PAGES_BASE_PATH` when deploying elsewhere. The original `pnpm build` server target remains available.
